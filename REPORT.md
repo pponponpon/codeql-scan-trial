@@ -8,9 +8,9 @@
 |------|----------------------|----------|----------|
 | CodeQL code scanning（advanced setup） | 是 | 自行提交 `.github/workflows/codeql.yml`（本 repo：java-kotlin / javascript-typescript / actions，`security-extended`，Java 用 `build-mode: none`，Actions 全釘 SHA） | 第一輪：push 02:42:50 → run 排入 02:42:58 → 三個 job 02:43:02 開跑 → 02:44:27 全部完成。**java-kotlin 84 秒、javascript-typescript 70 秒、actions 37 秒**（三個 job 並行，整體約 1.5 分鐘）。第二輪同樣約 2 分鐘（含排隊）。 |
 | Dependabot alerts | 是 | `gh api -X PUT repos/{owner}/{repo}/vulnerability-alerts` → 204 | 開啟後 1 分鐘內 18 條警示已出現（dependency graph 對 public repo 預設開啟） |
-| Dependabot security updates（自動開升版 PR） | 是 | `gh api -X PUT repos/{owner}/{repo}/automated-security-fixes` → 204 | 開啟後至本報告撰寫（約 10 分鐘）尚未產生任何 PR；GitHub 文件說明 security updates 是排程式執行，首批 PR 可能需數小時 |
+| Dependabot security updates（自動開升版 PR） | 是 | `gh api -X PUT repos/{owner}/{repo}/automated-security-fixes` → 204 | 開啟後 40 分鐘內（02:43 → 03:25）仍未產生任何 PR；GitHub 文件說明 security updates 是排程式執行，首批 PR 可能需數小時，需另行回頭確認 |
 | Secret scanning | 是 | `gh api -X PATCH repos/{owner}/{repo}` 帶 `security_and_analysis.secret_scanning.status=enabled` → 200 | 即時；目前 0 條（repo 內沒有真的憑證） |
-| Push protection | 是 | 同上，`secret_scanning_push_protection.status=enabled` | 即時；測試步驟見第 3 節 |
+| Push protection | 是 | 同上，`secret_scanning_push_protection.status=enabled` | 即時；**實測已擋下含 fine-grained PAT 的 push**（GH013），詳見第 3.3 節 |
 | Copilot Autofix | 是 | 不需開啟；對既有警示 `POST repos/{owner}/{repo}/code-scanning/alerts/{n}/autofix` → 202 | 三條警示同時送出，**60 秒內全部 `success`** |
 | Secret scanning 非供應商樣式（generic password 等）、validity checks | **否**（`secret_scanning_non_provider_patterns: disabled`、`secret_scanning_validity_checks: disabled`，需 GitHub Secret Protection 付費方案） | — | — |
 
@@ -138,6 +138,7 @@ remote:        (?) To push, remove secret from commit(s) or follow this URL to a
 * 正確辨識 token 類型（GitHub Personal Access Token）、commit 與檔案行號；token 完全沒有進到 GitHub，所以 secret scanning alert 維持 0 條。
 * 提供 bypass 網址，代表開發者仍可自行放行；在 public repo 免費版沒有「禁止 bypass」或「bypass 需審核」的設定，那是付費 Secret Protection 的功能。
 * 事後清理：本機 `git reset --hard HEAD~1`，token 於 GitHub 設定頁刪除；remote `main` 仍停在 e346b51，與測試前相同。
+* 補充：`reset` 後被擋的 commit 物件仍留在本機 `.git`（reflog 可見），已用 `git reflog expire --expire-unreachable=now --all && git gc --prune=now` 清除。實務上 token 撤銷才是真正的止血，本機物件清理只是避免殘留。
 
 ## 4. Copilot Autofix 修補品質（`scan-results/copilot-autofix.json`）
 
