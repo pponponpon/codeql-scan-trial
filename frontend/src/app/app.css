@@ -1,0 +1,11 @@
+.main {
+  max-width: 48rem;
+  margin: 2rem auto;
+  font-family: system-ui, sans-serif;
+}
+
+.raw-box {
+  min-height: 2rem;
+  border: 1px dashed #999;
+  padding: 0.5rem;
+}

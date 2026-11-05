@@ -1,0 +1,25 @@
+<main class="main">
+  <h1>{{ title() }}</h1>
+  <p>Deliberately vulnerable demo page used to evaluate GitHub code scanning. Do not reuse.</p>
+
+  <section>
+    <h2>Trusted banner (VULN-A1)</h2>
+    <div [innerHTML]="trustedBanner"></div>
+    <label>
+      Note (rendered as trusted HTML)
+      <input type="text" [(ngModel)]="noteInput" name="note" />
+    </label>
+    <button type="button" (click)="applyNote()">Apply</button>
+  </section>
+
+  <section>
+    <h2>Raw box (VULN-A2 / VULN-A4)</h2>
+    <div #rawBox class="raw-box"></div>
+    <p>Last message: {{ lastMessage() }}</p>
+  </section>
+
+  <section>
+    <h2>Eval (VULN-A3)</h2>
+    <p>Result: {{ evalResult() }}</p>
+  </section>
+</main>

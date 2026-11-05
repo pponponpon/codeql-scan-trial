@@ -1,0 +1,19 @@
+{
+  "name": "codeql-trial-express",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Deliberately vulnerable Express service for evaluating GitHub code scanning. NOT for production.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "5.3.0",
+    "lodash": "4.17.15",
+    "minimist": "1.2.5"
+  }
+}
