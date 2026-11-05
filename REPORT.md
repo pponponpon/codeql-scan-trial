@@ -121,6 +121,24 @@ critical 7、high 12、medium 4。`error` 級 17 條、`warning` 級 6 條（MD5
 6. 回到 Fine-grained tokens 頁面把該 token **Delete**。
 7. 若想對照「已經進到歷史的 secret」：push protection 只擋新 push，既有歷史靠 secret scanning alert 事後報警。
 
+**實測結果（2026-11-05，由使用者執行）：push 被 server 端拒絕。** 回應摘要：
+
+```
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: - GITHUB PUSH PROTECTION
+remote:     - Push cannot contain secrets
+remote:       —— GitHub Personal Access Token ——
+remote:        locations:
+remote:          - commit: af87d732347cdc2b7d2459e6b9b915ea9c1cb305
+remote:            path: secret-test.txt:1
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+```
+
+* 正確辨識 token 類型（GitHub Personal Access Token）、commit 與檔案行號；token 完全沒有進到 GitHub，所以 secret scanning alert 維持 0 條。
+* 提供 bypass 網址，代表開發者仍可自行放行；在 public repo 免費版沒有「禁止 bypass」或「bypass 需審核」的設定，那是付費 Secret Protection 的功能。
+* 事後清理：本機 `git reset --hard HEAD~1`，token 於 GitHub 設定頁刪除；remote `main` 仍停在 e346b51，與測試前相同。
+
 ## 4. Copilot Autofix 修補品質（`scan-results/copilot-autofix.json`）
 
 | 警示 | 建議內容 | 評價 |
