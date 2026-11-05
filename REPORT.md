@@ -183,3 +183,88 @@ remote:        (?) To push, remove secret from commit(s) or follow this URL to a
 6. **邏輯漏洞（VULN-CONTROL）兩邊都不會抓**：買工具不能減少這類風險，這部分預算應放在 code review 規範與測試。
 
 建議的下一步：用本 repo 的答案卷在公司 CI 跑 FindSecBugs / Semgrep / Trivy 一次，補上第 5 節缺的實測數字，再做採購決定。
+
+## 7. 實測：三個免費本機工具 vs. GitHub 免費資安功能（同一份答案卷）
+
+日期 2026-11-05，同一個 commit（`08a4290` 的程式碼）。工具版本：FindSecBugs 1.14.0（SpotBugs Maven plugin 4.10.5.0，effort Max，threshold Low）、Semgrep 1.183.0（Docker，`p/default`；另跑加上 security-audit／owasp-top-ten／java／javascript／typescript／nodejs 共 7 個 ruleset 的版本，結果完全相同）、Trivy 0.76.1（Docker，`fs --scanners vuln,secret,misconfig --include-dev-deps --offline-scan`）。原始輸出在 `scan-results/findsecbugs.xml`、`semgrep-default.json`、`semgrep-extended.json`、`trivy.json`。FindSecBugs 的接法見 `backend/pom.xml` 的 `findsecbugs` profile。
+
+### 7.1 逐條命中（✓ 抓到、✗ 沒抓到、— 不在該工具範圍）
+
+| ID | 類型 | CodeQL | FindSecBugs | Semgrep | 備註 |
+|----|------|:------:|:-----------:|:-------:|------|
+| VULN-01 | SQL injection | ✓ | ✓ | ✓ | 三者都抓 |
+| VULN-02 | 路徑穿越 | ✓ | ✓ | ✓ | |
+| VULN-03 | 命令注入 | ✓ | ✓ | ✓ | |
+| VULN-04 | XXE | ✓ | ✓ | ✓ | |
+| VULN-05 | ObjectInputStream | ✓ | ✓ | ✓ | |
+| VULN-06 | 寫死密碼（static final 欄位） | ✗ | ✗ | ✗ | **三者全漏** |
+| VULN-06b | 寫死密碼（字面值直接 equals） | ✗ | ✗ | ✗ | 三者全漏 |
+| VULN-07 | MD5 存密碼 | ✓ | ✓ | ✓ | |
+| VULN-08 | SSRF | ✓ | ✓ | ✗ | Semgrep 無 Java SSRF 規則命中 |
+| VULN-09 | 反射型 XSS | ✓ | ✓ | ✗ | |
+| VULN-10 | 開放重導向 | ✓ | ✓ | ✓ | |
+| VULN-11 | Log injection | ✓ | ✓（P3） | ✗ | FindSecBugs 預設 Medium 門檻會濾掉 |
+| VULN-12 | Jackson default typing（mapper 在欄位） | ✗ | **✓** | ✗ | 只有 FindSecBugs 抓到（bytecode 看 `enableDefaultTyping` 呼叫，不需資料流） |
+| VULN-12b | Jackson default typing（區域變數） | ✓ | ✓ | ✓ | |
+| VULN-CONTROL | 缺授權檢查 | ✗ | ✗ | ✗ | 如預期 |
+| VULN-A1 | `bypassSecurityTrustHtml`（`inject()`） | ✗ | — | ✗ | |
+| VULN-A1b | `bypassSecurityTrustHtml`（建構子注入） | ✓ | — | ✗ | Semgrep 沒有 Angular sanitizer 規則命中 |
+| VULN-A2 | `innerHTML` 綁 URL 參數 | ✓ | — | ✗ | |
+| VULN-A3 | `eval` | ✓ | — | ✓（2 條規則重複報） | |
+| VULN-A4 | postMessage 不檢查 origin | ✓ | — | ✗ | Semgrep 反而在**測試檔** `app.spec.ts` 報 `postMessage('x','*')` |
+| VULN-E1 | Express 命令注入 | ✓ | — | ✗ | Semgrep 規則只認 `require('child_process')`，程式用 `node:` 前綴就漏（已用副本驗證，拿掉前綴即抓到） |
+| VULN-E2 | Express 路徑穿越（`String()` 包裝） | ✗ | — | ✗ | 同上 |
+| VULN-E2b | Express 路徑穿越（直接 `path.join`） | ✓ | — | ✗ | 同上；拿掉 `node:` 前綴後 Semgrep 抓到 |
+| VULN-E2c | Express 路徑穿越（字串拼接） | ✗ | — | ✗ | 拿掉前綴後 Semgrep 仍漏 |
+
+### 7.2 誤報與噪音
+
+| 項目 | CodeQL | FindSecBugs | Semgrep |
+|------|--------|-------------|---------|
+| BAIT-01 401/403 `PrintWriter.write` 固定字串 | 無誤報 | 無誤報 | 無誤報 |
+| BAIT-02 `new File(@Value 路徑)` | 無誤報 | **誤報** PATH_TRAVERSAL_IN（P2） | 無誤報 |
+| BAIT-03 header 進 MDC | 無誤報 | **誤報** SERVLET_HEADER（P3） | 無誤報 |
+| BAIT-04 StringBuilder + escapeHtml4 | 無誤報 | 無誤報 | 無誤報 |
+| 非答案卷的額外警示 | 4 條 `js/missing-rate-limiting` | 17 條 SPRING_ENDPOINT（「發現 Spring endpoint」資訊性）、1 條 UNSAFE_HASH_EQUALS（時序攻擊，算合理）、4 條非 SECURITY 類 | 1 條 csurf 未使用（INFO）、1 條測試檔 postMessage wildcard |
+
+### 7.3 統計
+
+| 指標 | CodeQL（security-extended） | FindSecBugs（Java） | Semgrep OSS（Java+JS） | 「三免費工具」組合（FSB 管 Java、Semgrep 管 JS） |
+|------|------|------|------|------|
+| Java 14 條（含變體） | 11（78.6%） | **12（85.7%）** | 9（64.3%） | 12 |
+| Angular 5 條 | **4（80%）** | — | 1（20%） | 1 |
+| Express 4 條 | **2（50%）** | — | 0（0%）；拿掉 `node:` 前綴 2 | 0 |
+| 全部 23 條 recall | **17（73.9%）** | — | 10（43.5%） | 13（56.5%） |
+| 誘餌誤報 | 0 / 4 | 2 / 4 | 0 / 4 | 2 / 4 |
+| 安全類警示總數 → 對應真漏洞的比例 | 23 → 19（82.6%） | 31 → 12（38.7%）；只看 P1/P2 則 13 → 11（84.6%，但失去 log injection） | 12 → 10（83.3%） | — |
+| 掃描時間 | 約 1.5 分鐘（GitHub runner，三語言並行） | 16 秒 | 約 30 秒（不含首次拉映像檔） | — |
+
+套件與 secret：
+
+| 項目 | Dependabot | Trivy 0.76.1 |
+|------|-----------|--------------|
+| 4 個 DEPBAIT | 全中，19 條（jackson 10、commons-text 1、lodash 5、minimist 1、Angular 傳遞相依 glob/minimatch 2，其中 1 條自動關閉） | 全中，20 條（同上 CVE 集合，lodash 多一條 NSWG-ECO-516） |
+| 傳遞相依（Maven） | 不看（只看 pom 直接宣告） | 理論上會看，但本次 `--offline-scan` 下 Spring Boot 管理版本的相依「version cannot be determined」，傳遞相依沒掃到；要完整需掛 `~/.m2` 或讓它上網（本次第一次跑就被 Maven Central 429 限流） |
+| 自動開升版 PR | 有此功能，但開啟後 1 小時內尚未出現 | 無 |
+| Secret：寫死的 `ADMIN_PASSWORD` | 0（免費版只比對供應商 token） | 0（內建規則同樣以供應商 token 為主） |
+| Secret：GitHub PAT | push protection **在 push 時擋下** | 有 github-pat 規則，但只能在 commit 後掃到，不能擋 push |
+| 掃描時間 | 開啟後 1 分鐘內 | 32 秒（首次另加 45 秒下載 DB） |
+
+### 7.4 「三個免費工具加起來和 GitHub security 差不多」這句話的驗證結果
+
+| 範圍 | 結論 | 依據 |
+|------|------|------|
+| **Java 後端** | **差不多，FindSecBugs 甚至多抓一條**（欄位級 Jackson default typing），代價是 2 個已知樣式的誤報與大量 SPRING_ENDPOINT 噪音 | 7.1、7.2 |
+| **Angular 前端** | **差很多**：Semgrep OSS 只抓到 eval，`bypassSecurityTrustHtml`、innerHTML、postMessage 全漏；CodeQL 抓到 4/5 | 7.1 |
+| **Express／Node 後端** | **差很多，而且很脆**：用 `node:` 前綴就整段漏掉，這是 Node 官方建議寫法 | 7.1 備註、scratchpad 副本驗證 |
+| **套件 CVE** | **差不多**：CVE 集合一致，Trivy 多一個來源；Trivy 掃 Maven 要處理網路與 `~/.m2` 快取 | 7.3 |
+| **Secret** | **不可替代**：push protection 在 server 端擋下，本機工具只能事後掃 | 第 3.3 節 |
+| **邏輯漏洞** | 兩邊都抓不到 | VULN-CONTROL |
+
+修正後的建議（取代第 6 節第 2～5 點）：
+
+1. **Java**：FindSecBugs 留著就夠，不需為 Java 買 Code Security；把 PATH_TRAVERSAL_IN／SERVLET_HEADER 這類樣式用 exclude filter 壓掉，門檻維持 Low 才能保留 log injection。
+2. **JavaScript／TypeScript 是真正的缺口**：Semgrep OSS 對 Angular 與 Express 的覆蓋在本次只有 1/9；若前端與 Node 服務是公司的主要攻擊面，這是買 Code Security 最有力的理由。替代方案是 Semgrep 付費版（跨檔案 taint）或自寫規則，但要自己維護。
+3. **套件**：Trivy 等同 Dependabot alerts；若要自動升版 PR 得自己接 Renovate。
+4. **Secret**：push protection 沒有免費替代品；若只買一項，買 Secret Protection。
+5. **決策方式**：用公司實際的前端與 Node 程式碼各抽一個模組，照本 repo 的方法埋 5 條漏洞跑一次 Semgrep，若漏抓比例和本次相近，JS 這塊就值得付費。

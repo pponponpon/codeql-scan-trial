@@ -1,0 +1,317 @@
+[
+ {
+  "type": "EI_EXPOSE_REP2",
+  "category": "MALICIOUS_CODE",
+  "priority": 2,
+  "rank": 18,
+  "file": "com/example/trial/repo/UserRepository.java",
+  "line": 15,
+  "msg": "May expose internal representation by incorporating reference to mutable object"
+ },
+ {
+  "type": "SQL_INJECTION_SPRING_JDBC",
+  "category": "SECURITY",
+  "priority": 2,
+  "rank": 12,
+  "file": "com/example/trial/repo/UserRepository.java",
+  "line": 21,
+  "msg": "Potential JDBC Injection (Spring JDBC)"
+ },
+ {
+  "type": "UNSAFE_HASH_EQUALS",
+  "category": "SECURITY",
+  "priority": 2,
+  "rank": 12,
+  "file": "com/example/trial/service/PasswordService.java",
+  "line": 25,
+  "msg": "Unsafe hash equals"
+ },
+ {
+  "type": "WEAK_MESSAGE_DIGEST_MD5",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/service/PasswordService.java",
+  "line": 16,
+  "msg": "MD2, MD4 and MD5 are weak hash functions"
+ },
+ {
+  "type": "SERVLET_HEADER",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/support/RequestIdFilter.java",
+  "line": 25,
+  "msg": "HTTP headers untrusted"
+ },
+ {
+  "type": "PATH_TRAVERSAL_IN",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/web/FileController.java",
+  "line": 33,
+  "msg": "Potential Path Traversal (file read)"
+ },
+ {
+  "type": "PATH_TRAVERSAL_IN",
+  "category": "SECURITY",
+  "priority": 2,
+  "rank": 12,
+  "file": "com/example/trial/web/FileController.java",
+  "line": 24,
+  "msg": "Potential Path Traversal (file read)"
+ },
+ {
+  "type": "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE",
+  "category": "BAD_PRACTICE",
+  "priority": 2,
+  "rank": 16,
+  "file": "com/example/trial/web/FileController.java",
+  "line": 26,
+  "msg": "Method ignores exceptional return value"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/FileController.java",
+  "line": 33,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/FileController.java",
+  "line": 46,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "JACKSON_UNSAFE_DESERIALIZATION",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/web/ImportController.java",
+  "line": 21,
+  "msg": "Unsafe Jackson deserialization configuration"
+ },
+ {
+  "type": "JACKSON_UNSAFE_DESERIALIZATION",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/web/ImportController.java",
+  "line": 43,
+  "msg": "Unsafe Jackson deserialization configuration"
+ },
+ {
+  "type": "OBJECT_DESERIALIZATION",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/web/ImportController.java",
+  "line": 27,
+  "msg": "Object deserialization is used in {1}"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/ImportController.java",
+  "line": 34,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/ImportController.java",
+  "line": 42,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/ImportController.java",
+  "line": 26,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/PageController.java",
+  "line": 34,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/PageController.java",
+  "line": 27,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/PageController.java",
+  "line": 42,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "UNVALIDATED_REDIRECT",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/web/PageController.java",
+  "line": 34,
+  "msg": "Unvalidated Redirect"
+ },
+ {
+  "type": "XSS_SERVLET",
+  "category": "SECURITY",
+  "priority": 2,
+  "rank": 12,
+  "file": "com/example/trial/web/PageController.java",
+  "line": 28,
+  "msg": "Potential XSS in Servlet"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/ProxyController.java",
+  "line": 21,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "URLCONNECTION_SSRF_FD",
+  "category": "SECURITY",
+  "priority": 1,
+  "rank": 10,
+  "file": "com/example/trial/web/ProxyController.java",
+  "line": 22,
+  "msg": "URLConnection Server-Side Request Forgery (SSRF) and File Disclosure"
+ },
+ {
+  "type": "COMMAND_INJECTION",
+  "category": "SECURITY",
+  "priority": 2,
+  "rank": 12,
+  "file": "com/example/trial/web/SystemController.java",
+  "line": 20,
+  "msg": "Potential Command Injection"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/SystemController.java",
+  "line": 19,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "CRLF_INJECTION_LOGS",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 66,
+  "msg": "Potential CRLF Injection for logs"
+ },
+ {
+  "type": "EI_EXPOSE_REP2",
+  "category": "MALICIOUS_CODE",
+  "priority": 2,
+  "rank": 18,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 36,
+  "msg": "May expose internal representation by incorporating reference to mutable object"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 48,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 63,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 53,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 43,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/UserController.java",
+  "line": 89,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "SPRING_ENDPOINT",
+  "category": "SECURITY",
+  "priority": 3,
+  "rank": 15,
+  "file": "com/example/trial/web/XmlController.java",
+  "line": 22,
+  "msg": "Found Spring endpoint"
+ },
+ {
+  "type": "THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION",
+  "category": "BAD_PRACTICE",
+  "priority": 3,
+  "rank": 19,
+  "file": "com/example/trial/web/XmlController.java",
+  "line": 22,
+  "msg": "Method lists Exception in its throws clause, but it could be more specific."
+ },
+ {
+  "type": "XXE_DOCUMENT",
+  "category": "SECURITY",
+  "priority": 2,
+  "rank": 12,
+  "file": "com/example/trial/web/XmlController.java",
+  "line": 24,
+  "msg": "XML parsing vulnerable to XXE (DocumentBuilder)"
+ }
+]
