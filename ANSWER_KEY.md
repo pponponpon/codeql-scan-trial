@@ -20,7 +20,7 @@ results are compared against this list in `REPORT.md`.
 | VULN-10 | `backend/src/main/java/com/example/trial/web/PageController.java` | 34 | Open redirect (CWE-601) – `sendRedirect(to)` from request | `java/unvalidated-url-redirection` |
 | VULN-11 | `backend/src/main/java/com/example/trial/web/UserController.java` | 66 | Log injection (CWE-117) – request value concatenated into `log.info` | `java/log-injection` (security-extended) |
 | VULN-12 | `backend/src/main/java/com/example/trial/web/ImportController.java` | 21, 34 | Unsafe deserialization (CWE-502) – Jackson `enableDefaultTyping()` + `readValue` of request body (old jackson-databind 2.9.10.8) | `java/unsafe-deserialization` |
-| VULN-CONTROL | `backend/src/main/java/com/example/trial/web/UserController.java` | 82–91 | Missing authorization / IDOR (CWE-639, CWE-862) – caller `X-User-Id` never compared with `{id}` | **none expected** – logic flaw outside rule-based static analysis |
+| VULN-CONTROL | `backend/src/main/java/com/example/trial/web/UserController.java` | 86–95 | Missing authorization / IDOR (CWE-639, CWE-862) – caller `X-User-Id` never compared with `{id}` | **none expected** – logic flaw outside rule-based static analysis |
 
 ## B. Angular (`frontend/`)
 
@@ -59,4 +59,17 @@ whether CodeQL's taint tracking distinguishes them from the real vulnerabilities
 | DEPBAIT-03 | `express-app/package.json` | `lodash` 4.17.15 | CVE-2020-8203, CVE-2020-28500, CVE-2021-23337 |
 | DEPBAIT-04 | `express-app/package.json` | `minimist` 1.2.5 | CVE-2021-44906 |
 
-Totals: 18 real vulnerabilities (12 Java + 4 Angular + 2 Express), 1 control (VULN-CONTROL), 4 baits, 4 dependency baits.
+## F. Round 2 – variants of the items CodeQL missed in round 1
+
+Added after the first scan to tell "wrong coding pattern for the query" apart from "no query for this".
+
+| ID | File | Line(s) | What changed vs. round 1 | Expected CodeQL query |
+|----|------|---------|--------------------------|-----------------------|
+| VULN-06b | `backend/src/main/java/com/example/trial/web/UserController.java` | 71 | Password literal compared directly: `password.equals("...")` instead of a `static final` field | `java/hardcoded-credential-comparison` |
+| VULN-12b | `backend/src/main/java/com/example/trial/web/ImportController.java` | 42–44 | `ObjectMapper` created and `enableDefaultTyping()` called locally in the same method as `readValue` | `java/unsafe-deserialization` |
+| VULN-A1b | `frontend/src/app/banner.ts` | 14–17 | `DomSanitizer` obtained via constructor injection instead of `inject()` | `js/xss` |
+| VULN-E2b | `express-app/app.js` | 45–46 | `path.join(PUBLIC_DIR, req.query.name)` without `String()` / default wrapping | `js/path-injection` |
+| VULN-E2c | `express-app/app.js` | 57–59 | Plain concatenation `PUBLIC_DIR + '/' + name` instead of `path.join` | `js/path-injection` |
+
+Totals (round 1): 18 real vulnerabilities (12 Java + 4 Angular + 2 Express), 1 control (VULN-CONTROL), 4 baits, 4 dependency baits.
+Round 2 adds 5 variants.
