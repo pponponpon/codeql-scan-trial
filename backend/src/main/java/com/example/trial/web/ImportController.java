@@ -34,4 +34,14 @@ public class ImportController {
         Object payload = legacyMapper.readValue(json, Object.class);
         return "imported " + payload.getClass().getName();
     }
+
+    // VULN-12b (round 2 variant): mapper created and default typing enabled locally, right before readValue.
+    @SuppressWarnings("deprecation")
+    @PostMapping(value = "/json-local", consumes = "application/json")
+    public String importJsonLocal(@RequestBody String json) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping();
+        Object payload = mapper.readValue(json, Object.class);
+        return "imported " + payload.getClass().getName();
+    }
 }

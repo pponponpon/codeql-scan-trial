@@ -41,6 +41,30 @@ function createApp() {
     });
   });
 
+  // VULN-E2b (round 2 variant): same as VULN-E2 but without String()/default wrapping.
+  app.get('/api/static2', (req, res) => {
+    const target = path.join(PUBLIC_DIR, req.query.name);
+    fs.readFile(target, 'utf8', (err, data) => {
+      if (err) {
+        res.status(404).send('not found');
+        return;
+      }
+      res.type('text/plain').send(data);
+    });
+  });
+
+  // VULN-E2c (round 2 variant): plain string concatenation instead of path.join.
+  app.get('/api/static3', (req, res) => {
+    const name = String(req.query.name || 'index.txt');
+    fs.readFile(PUBLIC_DIR + '/' + name, 'utf8', (err, data) => {
+      if (err) {
+        res.status(404).send('not found');
+        return;
+      }
+      res.type('text/plain').send(data);
+    });
+  });
+
   // DEPBAIT-03 usage: lodash 4.17.15 (CVE-2020-8203 prototype pollution via merge, CVE-2021-23337 command injection via template).
   app.post('/api/settings', (req, res) => {
     const defaults = { theme: 'light', pageSize: 20 };

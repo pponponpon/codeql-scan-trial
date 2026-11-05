@@ -1,0 +1,20 @@
+[
+ {
+  "status": "success",
+  "description": "Use parameterized queries instead of dynamic string concatenation for any user-influenced SQL fragment.\n\nBest fix with no functional change:\n1. In `backend/src/main/java/com/example/trial/repo/UserRepository.java`, change `findByNameUnsafe` to use `?` placeholder and pass `name` as a bound parameter to `JdbcTemplate`.\n2. In `backend/src/main/java/com/example/trial/web/UserController.java`, update `/search` endpoint to call `findByNameSafe(name)` (or keep method name and make it safe; here we switch callsite for clarity and least surprise).\n\nNo new imports, helper methods, or dependencies are required.\n",
+  "started_at": "2026-11-05T02:45:33.533093Z",
+  "alert_number": 15
+ },
+ {
+  "status": "success",
+  "description": "To fix this safely without changing intended functionality, resolve the user-supplied file name against the configured storage directory using normalized absolute paths, then enforce that the resolved path remains inside the storage directory before reading. Reject invalid paths with a `400 Bad Request`.\n\nIn `backend/src/main/java/com/example/trial/web/FileController.java`, update the `/download` method to:\n\n1. Build a normalized absolute base path from `storageDir`.\n2. Resolve `name` against that base path and normalize.\n3. Verify `targetPath.startsWith(basePath)`. If not, return `ResponseEntity.badRequest().build()`.\n4. Use `targetPath.toFile()` for existence checks and `Files.readAllBytes(targetPath)` for reading.\n\nThis preserves behavior for valid in-directory files and blocks traversal/absolute-path attacks.\n",
+  "started_at": "2026-11-05T02:45:34.272184Z",
+  "alert_number": 12
+ },
+ {
+  "status": "success",
+  "description": "Use `child_process.execFile` (or `spawn`) instead of `exec`, and pass command arguments as an array so user input is not interpreted by a shell. Also validate the `host` value with a strict allowlist for hostname/IP-safe characters and reject invalid input with HTTP 400. This preserves functionality (performing `nslookup` on client-supplied host) while preventing command injection.\n\nIn `express-app/app.js`:\n- Update the import on line 3 from `exec` to `execFile`.\n- In `/api/lookup` handler (lines 20\u201329), keep reading `host` but add input validation.\n- Replace `exec('nslookup ' + host, ...)` with `execFile('nslookup', [host], ...)`.\n- Keep existing response behavior for success/error as much as possible.\n\nNo additional files or dependencies are required.\n",
+  "started_at": "2026-11-05T02:45:35.090955Z",
+  "alert_number": 3
+ }
+]

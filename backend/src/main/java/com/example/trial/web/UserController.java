@@ -67,6 +67,10 @@ public class UserController {
         if ("admin".equals(name) && ADMIN_PASSWORD.equals(password)) {
             return Map.of("ok", true, "role", "admin");
         }
+        // VULN-06b (round 2 variant): the password literal is compared directly in equals().
+        if ("support".equals(name) && password.equals("Supp0rt-P@ss-2026")) {
+            return Map.of("ok", true, "role", "support");
+        }
         boolean ok = passwords.matches(password, users.findPasswordHash(name));
         if (!ok) {
             throw new AccessDeniedException(401, "bad credentials");
